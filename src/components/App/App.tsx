@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import ReactPaginateModule from 'react-paginate';
 import toast, { Toaster } from 'react-hot-toast';
 import type { Movie } from '../../types/movie';
@@ -24,15 +24,19 @@ export default function App() {
   const [page, setPage] = useState<number>(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError, isSuccess } = useQuery({
+  const { data, isLoading, isError, isSuccess, isPlaceholderData } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: query !== '',
-    placeholderData: keepPreviousData,
+    // keep the previous page only while paginating the same query,
+    // so the pagination stays in place and a new search starts from scratch
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === query ? previousData : undefined,
   });
 
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
+  const isLoadingMovies = isLoading || isPlaceholderData;
 
   useEffect(() => {
     if (isSuccess && data.results.length === 0) {
@@ -56,8 +60,6 @@ export default function App() {
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
-      {isLoading && <Loader />}
-      {isError && <ErrorMessage />}
       {totalPages > 1 && (
         <ReactPaginate
           pageCount={totalPages}
@@ -71,7 +73,9 @@ export default function App() {
           previousLabel="←"
         />
       )}
-      {movies.length > 0 && (
+      {isLoadingMovies && <Loader />}
+      {isError && <ErrorMessage />}
+      {!isLoadingMovies && movies.length > 0 && (
         <MovieGrid movies={movies} onSelect={handleSelectMovie} />
       )}
       {selectedMovie && (

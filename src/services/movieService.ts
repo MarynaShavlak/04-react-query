@@ -8,7 +8,7 @@ interface FetchMoviesParams {
   language: string;
 }
 
-export interface FetchMoviesResponse {
+interface FetchMoviesResponse {
   page: number;
   results: Movie[];
   total_pages: number;

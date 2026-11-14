@@ -6,6 +6,8 @@
 вікно з детальною інформацією про фільм: backdrop-зображенням, описом, датою
 релізу та рейтингом.
 
+**Демо:** https://04-react-query-theta-sooty.vercel.app
+
 Отримання, кешування та стани запитів керуються через
 [TanStack Query](https://tanstack.com/query/latest), а пагінація результатів
 реалізована за допомогою [React Paginate](https://github.com/AdeleD/react-paginate).
